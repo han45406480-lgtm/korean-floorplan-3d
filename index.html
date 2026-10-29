@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>한국 평면도 3D 이미지 스튜디오 (Mac 바로실행)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #090d16;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", sans-serif;
+      word-break: keep-all;
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-16">
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="bg-emerald-500/15 border border-emerald-500/40 p-2.5 rounded-xl text-emerald-400 font-bold text-lg">
+        3D
+      </div>
+      <div>
+        <div class="flex items-center gap-2.5">
+          <h1 class="font-bold text-lg text-white">한국 평면도 3D 이미지 생성기</h1>
+          <span class="text-xs bg-emerald-500/20 text-emerald-400 font-semibold px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+            Mac 로컬 설치본
+          </span>
+        </div>
+        <p class="text-xs text-slate-400">2D 분양 평면도 업로드 → 3D 입체 조감도 변환 → 원본 비교 및 SNS 비율별 즉시 다운로드</p>
+      </div>
+    </div>
+    <div class="text-xs text-slate-400 bg-slate-800/80 px-3.5 py-2 rounded-xl border border-slate-700">
+      설치 경로: 바탕화면/분양교육자료/korean-floorplan-3d
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <div class="max-w-7xl mx-auto px-6 pt-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- Left Controls (4 Cols) -->
+    <div class="lg:col-span-4 space-y-5">
+      <!-- Step 1: Upload or Preset -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-emerald-400 font-semibold text-sm">1. 분양 평면도 업로드 / 표준 프리셋</span>
+          <button id="resetUploadBtn" class="hidden text-xs text-rose-400 hover:underline" onclick="resetCustomUpload()">초기화</button>
+        </div>
+
+        <input id="fileInput" type="file" accept="image/*" class="hidden" onchange="handleFileUpload(event)" />
+        <button onclick="document.getElementById('fileInput').click()" class="w-full py-3.5 px-4 mb-4 border-2 border-dashed border-slate-700 hover:border-emerald-500 bg-slate-950/60 rounded-xl flex flex-col items-center justify-center gap-1 transition">
+          <span id="uploadLabel" class="text-xs font-semibold text-slate-200">내 맥(Mac)에서 2D 평면도 이미지 업로드</span>
+          <span class="text-[11px] text-slate-500">PNG, JPG, WEBP 분양 도면 캡처본 지원</span>
+        </button>
+
+        <div class="mb-4">
+          <label class="text-xs text-slate-400 block mb-1">현장 단지명 (다운로드 이미지 상단 표기)</label>
+          <input id="projectNameInput" type="text" value="백석시그니처자이" oninput="renderAll()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500" />
+        </div>
+
+        <label class="text-xs text-slate-400 block mb-2">한국 아파트 표준 평면 프리셋 (5대 규격)</label>
+        <div id="presetButtons" class="grid grid-cols-2 gap-2"></div>
+      </div>
+
+      <!-- Step 2: 3D Controls -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <div class="text-emerald-400 font-semibold text-sm">2. 3D 입체 각도 및 마감재 설정</div>
+
+        <div>
+          <label class="text-xs text-slate-400 block mb-1.5">카메라 앵글 (조감 시점)</label>
+          <div class="grid grid-cols-3 gap-1.5 text-xs">
+            <button onclick="setCamera('iso_45')" id="cam_iso_45" class="py-2 rounded-lg border border-emerald-500 bg-emerald-500/15 text-white font-semibold">45° 표준 조감</button>
+            <button onclick="setCamera('top_60')" id="cam_top_60" class="py-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-400">60° 수직 탑뷰</button>
+            <button onclick="setCamera('front_30')" id="cam_front_30" class="py-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-400">30° 입체 투시</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-slate-400">3D 벽체 입체 높이</span>
+            <span id="wallHeightVal" class="text-emerald-400 font-semibold">38px</span>
+          </div>
+          <input id="wallHeightSlider" type="range" min="18" max="64" value="38" oninput="updateWallHeight(this.value)" class="w-full accent-emerald-500" />
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-400 block mb-1.5">바닥 마감재</label>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button onclick="setFlooring('oak_wood')" id="fl_oak_wood" class="p-2 rounded-lg border border-emerald-500 bg-emerald-500/15 text-white font-semibold text-left">내추럴 오크 강마루</button>
+            <button onclick="setFlooring('porcelain_tile')" id="fl_porcelain_tile" class="p-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-400 text-left">이탈리아 포셀린타일</button>
+            <button onclick="setFlooring('herringbone')" id="fl_herringbone" class="p-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-400 text-left">헤링본 원목마루</button>
+            <button onclick="setFlooring('marble')" id="fl_marble" class="p-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-400 text-left">비앙코 화이트 마블</button>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800 grid grid-cols-3 gap-2 text-xs">
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
+            <input type="checkbox" id="chkFurniture" checked onchange="renderAll()" class="accent-emerald-500" />
+            <span>3D 가구배치</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
+            <input type="checkbox" id="chkLabels" checked onchange="renderAll()" class="accent-emerald-500" />
+            <span>방 이름표</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
+            <input type="checkbox" id="chkDims" checked onchange="renderAll()" class="accent-emerald-500" />
+            <span>치수 표기</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Viewer & Export (8 Cols) -->
+    <div class="lg:col-span-8 space-y-6">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 class="text-white font-bold text-base">원본 2D 평면도 vs 3D 입체 조감도 확인</h2>
+            <p class="text-xs text-slate-400 mt-0.5">슬라이더(⇄)를 좌우로 드래그하여 원본 구조와 3D 결과를 비교하세요</p>
+          </div>
+          <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+            <button id="btnSplitMode" onclick="setViewMode('split')" class="px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold">2D/3D 비교 슬라이더</button>
+            <button id="btn3dMode" onclick="setViewMode('3d')" class="px-3 py-1.5 rounded-lg text-slate-400">3D 완성본 단독 보기</button>
+          </div>
+        </div>
+
+        <!-- Viewport -->
+        <div class="relative aspect-square max-h-[560px] w-full mx-auto bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 select-none">
+          <img id="img3D" alt="3D Render" class="absolute inset-0 w-full h-full object-contain" />
+          <div id="clip2DWrapper" class="absolute inset-0 overflow-hidden" style="clip-path: inset(0 50% 0 0);">
+            <img id="img2D" alt="2D Blueprint" class="w-full h-full object-contain bg-slate-900" />
+          </div>
+          <div id="splitLine" class="absolute top-0 bottom-0 w-0.5 bg-emerald-400 pointer-events-none" style="left: 50%;">
+            <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center shadow-lg text-xs">⇄</div>
+          </div>
+          <span id="badge2D" class="absolute top-4 left-4 bg-slate-900/90 text-slate-200 text-xs font-semibold px-3 py-1 rounded-full border border-slate-700">원본 2D 평면도</span>
+          <span class="absolute top-4 right-4 bg-emerald-500/90 text-slate-950 text-xs font-bold px-3 py-1 rounded-full">3D 입체 조감도</span>
+          <input id="splitRange" type="range" min="5" max="95" value="50" oninput="updateSplit(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize" />
+        </div>
+
+        <!-- Step 3: SNS Multi-Ratio Download -->
+        <div class="mt-6 pt-5 border-t border-slate-800">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-bold text-white">3. 용도별 비율 선택 후 다운로드 (여백 자동 배치 · 잘림 방지)</span>
+            <button onclick="downloadRaw3D()" class="text-xs text-emerald-400 hover:underline font-semibold">원본 3D PNG 바로 저장 →</button>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <button onclick="downloadRatio('instagram-feed', '인스타피드_4x5')" class="p-3.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500 rounded-xl text-left transition">
+              <div class="flex justify-between items-center"><span class="text-xs font-bold text-white">인스타그램 피드</span><span class="text-[10px] bg-emerald-500/15 text-emerald-400 px-1.5 py-0.5 rounded font-bold">4:5</span></div>
+              <div class="text-[11px] text-slate-400 mt-1">1080 × 1350 세로형</div>
+            </button>
+            <button onclick="downloadRatio('instagram-story', '인스타스토리_9x16')" class="p-3.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500 rounded-xl text-left transition">
+              <div class="flex justify-between items-center"><span class="text-xs font-bold text-white">인스타그램 스토리</span><span class="text-[10px] bg-emerald-500/15 text-emerald-400 px-1.5 py-0.5 rounded font-bold">9:16</span></div>
+              <div class="text-[11px] text-slate-400 mt-1">1080 × 1920 스토리형</div>
+            </button>
+            <button onclick="downloadRatio('naver-blog', '네이버블로그_3x2')" class="p-3.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500 rounded-xl text-left transition">
+              <div class="flex justify-between items-center"><span class="text-xs font-bold text-white">네이버 블로그</span><span class="text-[10px] bg-emerald-500/15 text-emerald-400 px-1.5 py-0.5 rounded font-bold">3:2</span></div>
+              <div class="text-[11px] text-slate-400 mt-1">1200 × 800 가로형</div>
+            </button>
+            <button onclick="downloadRatio('square', '정사각형_1x1')" class="p-3.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500 rounded-xl text-left transition">
+              <div class="flex justify-between items-center"><span class="text-xs font-bold text-white">블로그 / 피드 겸용</span><span class="text-[10px] bg-emerald-500/15 text-emerald-400 px-1.5 py-0.5 rounded font-bold">1:1</span></div>
+              <div class="text-[11px] text-slate-400 mt-1">1080 × 1080 정사각형</div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TEMPLATES = [
+      {
+        id: '84A', name: '84㎡A (4Bay 판상형 표준)', pyung: 34, area: 84.99, bay: '4Bay 판상형',
+        rooms: [
+          { name: '현관/창고', type: 'entrance', x: 6, y: 12, w: 12, h: 24, dim: '1.6×2.2' },
+          { name: '공용욕실', type: 'bath', x: 6, y: 36, w: 12, h: 18, dim: '2.1×1.8' },
+          { name: '알파룸/팬트리', type: 'Alpha', x: 18, y: 12, w: 16, h: 28, dim: '2.4×2.3' },
+          { name: '주방/식당', type: 'kitchen', x: 34, y: 8, w: 28, h: 34, dim: '3.8×3.4' },
+          { name: '부부욕실', type: 'bath', x: 62, y: 14, w: 13, h: 22, dim: '2.2×1.8' },
+          { name: '드레스룸', type: 'dressroom', x: 75, y: 8, w: 19, h: 28, dim: '2.9×2.4' },
+          { name: '침실3', type: 'bedroom', x: 6, y: 54, w: 18, h: 36, dim: '3.0×3.3' },
+          { name: '침실2', type: 'bedroom', x: 24, y: 54, w: 18, h: 36, dim: '2.7×3.3' },
+          { name: '거실', type: 'living', x: 42, y: 42, w: 28, h: 48, dim: '4.5m 광폭' },
+          { name: '침실1(안방)', type: 'master', x: 70, y: 36, w: 24, h: 44, dim: '3.6×3.6' },
+          { name: '발코니', type: 'balcony', x: 70, y: 80, w: 24, h: 10, dim: '확장형' }
+        ]
+      },
+      {
+        id: '84B', name: '84㎡B (3면 개방 + 베타공간)', pyung: 34, area: 84.96, bay: '3면 개방형',
+        rooms: [
+          { name: '현관/창고', type: 'entrance', x: 6, y: 14, w: 14, h: 22, dim: '1.8×2.2' },
+          { name: '공용욕실', type: 'bath', x: 6, y: 36, w: 14, h: 18, dim: '2.1×1.8' },
+          { name: '팬트리', type: 'pantry', x: 20, y: 14, w: 12, h: 26, dim: '1.8×2.4' },
+          { name: '주방/식당', type: 'kitchen', x: 32, y: 8, w: 26, h: 34, dim: '4.5×3.8' },
+          { name: '부부욕실', type: 'bath', x: 58, y: 14, w: 12, h: 22, dim: '2.1×1.8' },
+          { name: '드레스룸', type: 'dressroom', x: 70, y: 8, w: 12, h: 28, dim: '2.0×2.6' },
+          { name: '안방 베타공간', type: 'Alpha', x: 82, y: 14, w: 13, h: 26, dim: '2.9×2.2' },
+          { name: '침실3', type: 'bedroom', x: 6, y: 54, w: 18, h: 36, dim: '3.0×3.3' },
+          { name: '침실2', type: 'bedroom', x: 24, y: 54, w: 17, h: 36, dim: '2.7×3.3' },
+          { name: '거실', type: 'living', x: 41, y: 42, w: 27, h: 48, dim: '4.5m 광폭' },
+          { name: '침실1(안방)', type: 'master', x: 68, y: 40, w: 27, h: 40, dim: '4.8×3.6' },
+          { name: '발코니', type: 'balcony', x: 68, y: 80, w: 27, h: 10, dim: '발코니' }
+        ]
+      },
+      {
+        id: '59A', name: '59㎡A (소형 4Bay 판상형)', pyung: 24, area: 59.99, bay: '4Bay 판상형',
+        rooms: [
+          { name: '드레스룸', type: 'dressroom', x: 8, y: 12, w: 14, h: 26, dim: '1.8×2.4' },
+          { name: '부부욕실', type: 'bath', x: 22, y: 16, w: 12, h: 22, dim: '1.8×1.8' },
+          { name: '주방/식당', type: 'kitchen', x: 34, y: 10, w: 28, h: 32, dim: '2.9×3.2' },
+          { name: '팬트리', type: 'pantry', x: 62, y: 18, w: 12, h: 22, dim: '1.5×1.8' },
+          { name: '현관', type: 'entrance', x: 74, y: 14, w: 18, h: 20, dim: '1.5×1.8' },
+          { name: '공용욕실', type: 'bath', x: 74, y: 34, w: 18, h: 18, dim: '2.1×1.6' },
+          { name: '침실1(안방)', type: 'master', x: 8, y: 38, w: 26, h: 48, dim: '3.3×3.0' },
+          { name: '거실', type: 'living', x: 34, y: 42, w: 24, h: 44, dim: '3.6m' },
+          { name: '침실2', type: 'bedroom', x: 58, y: 52, w: 17, h: 34, dim: '2.7×3.1' },
+          { name: '침실3', type: 'bedroom', x: 75, y: 52, w: 17, h: 34, dim: '2.7×3.1' }
+        ]
+      },
+      {
+        id: '99A', name: '99㎡A (대형 5Bay 판상형)', pyung: 39, area: 99.39, bay: '5Bay 판상형',
+        rooms: [
+          { name: '부티크 드레스룸', type: 'dressroom', x: 5, y: 10, w: 20, h: 26, dim: '3.2×2.4' },
+          { name: '부부욕실', type: 'bath', x: 25, y: 14, w: 12, h: 22, dim: '2.2×2.0' },
+          { name: '다이닝/주방', type: 'kitchen', x: 37, y: 8, w: 30, h: 32, dim: '4.4×3.4' },
+          { name: '대형팬트리', type: 'pantry', x: 67, y: 14, w: 12, h: 24, dim: '1.8×2.2' },
+          { name: '현관/창고', type: 'entrance', x: 79, y: 12, w: 16, h: 20, dim: '1.8×2.2' },
+          { name: '공용욕실', type: 'bath', x: 79, y: 32, w: 16, h: 18, dim: '2.2×1.8' },
+          { name: '침실1(안방)', type: 'master', x: 5, y: 36, w: 22, h: 44, dim: '4.2×3.5' },
+          { name: '침실2', type: 'bedroom', x: 27, y: 50, w: 15, h: 40, dim: '2.7×3.7' },
+          { name: '거실', type: 'living', x: 42, y: 40, w: 25, h: 50, dim: '4.8m 광폭' },
+          { name: '침실3', type: 'bedroom', x: 67, y: 50, w: 14, h: 40, dim: '2.7×3.7' },
+          { name: '침실4', type: 'bedroom', x: 81, y: 50, w: 14, h: 40, dim: '3.0×3.7' }
+        ]
+      }
+    ];
+
+    let currentTemplate = TEMPLATES[0];
+    let customImgData = null;
+    let cameraAngle = 'iso_45';
+    let wallHeight = 38;
+    let flooring = 'oak_wood';
+    let current3DUrl = '';
+
+    function initPresets() {
+      const container = document.getElementById('presetButtons');
+      container.innerHTML = '';
+      TEMPLATES.forEach((t) => {
+        const active = !customImgData && currentTemplate.id === t.id;
+        const btn = document.createElement('button');
+        btn.className = `text-left p-2.5 rounded-xl border transition ${active ? 'bg-emerald-950/50 border-emerald-500 text-white' : 'bg-slate-950/60 border-slate-800 text-slate-400'}`;
+        btn.innerHTML = `<div class="flex justify-between items-center"><span class="font-bold text-xs text-white">${t.id}</span><span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">${t.pyung}평</span></div><div class="text-[11px] text-slate-400 truncate mt-0.5">${t.bay}</div>`;
+        btn.onclick = () => {
+          customImgData = null;
+          document.getElementById('resetUploadBtn').classList.add('hidden');
+          document.getElementById('uploadLabel').innerText = '내 맥(Mac)에서 2D 평면도 이미지 업로드';
+          currentTemplate = t;
+          initPresets();
+          renderAll();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      document.getElementById('uploadLabel').innerText = '업로드됨: ' + file.name;
+      document.getElementById('resetUploadBtn').classList.remove('hidden');
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        customImgData = ev.target.result;
+        initPresets();
+        renderAll();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resetCustomUpload() {
+      customImgData = null;
+      document.getElementById('resetUploadBtn').classList.add('hidden');
+      document.getElementById('uploadLabel').innerText = '내 맥(Mac)에서 2D 평면도 이미지 업로드';
+      initPresets();
+      renderAll();
+    }
+
+    function setCamera(cam) {
+      cameraAngle = cam;
+      ['iso_45', 'top_60', 'front_30'].forEach(c => {
+        document.getElementById('cam_' + c).className = c === cam
+          ? 'py-2 rounded-lg border border-emerald-500 bg-emerald-500/15 text-white font-semibold'
+          : 'py-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-400';
+      });
+      renderAll();
+    }
+
+    function setFlooring(fl) {
+      flooring = fl;
+      ['oak_wood', 'porcelain_tile', 'herringbone', 'marble'].forEach(f => {
+        document.getElementById('fl_' + f).className = f === fl
+          ? 'p-2 rounded-lg border border-emerald-500 bg-emerald-500/15 text-white font-semibold text-left'
+          : 'p-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-400 text-left';
+      });
+      renderAll();
+    }
+
+    function updateWallHeight(val) {
+      wallHeight = Number(val);
+      document.getElementById('wallHeightVal').innerText = val + 'px';
+      renderAll();
+    }
+
+    function updateSplit(val) {
+      document.getElementById('clip2DWrapper').style.clipPath = `inset(0 ${100 - val}% 0 0)`;
+      document.getElementById('splitLine').style.left = val + '%';
+    }
+
+    function setViewMode(mode) {
+      const isSplit = mode === 'split';
+      document.getElementById('clip2DWrapper').style.display = isSplit ? 'block' : 'none';
+      document.getElementById('splitLine').style.display = isSplit ? 'block' : 'none';
+      document.getElementById('splitRange').style.display = isSplit ? 'block' : 'none';
+      document.getElementById('badge2D').style.display = isSplit ? 'block' : 'none';
+      document.getElementById('btnSplitMode').className = isSplit ? 'px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold' : 'px-3 py-1.5 rounded-lg text-slate-400';
+      document.getElementById('btn3dMode').className = !isSplit ? 'px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold' : 'px-3 py-1.5 rounded-lg text-slate-400';
+    }
+
+    function render2DBlueprint() {
+      if (customImgData) return customImgData;
+      const canvas = document.createElement('canvas');
+      canvas.width = 1000;
+      canvas.height = 1000;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(0, 0, 1000, 1000);
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 28px sans-serif';
+      ctx.fillText(currentTemplate.name + ' — 원본 2D 평면도', 60, 70);
+
+      const ox = 50, oy = 140, sw = 9.0, sh = 7.6;
+      currentTemplate.rooms.forEach(r => {
+        const rx = ox + r.x * sw, ry = oy + r.y * sh, rw = r.w * sw, rh = r.h * sh;
+        ctx.fillStyle = (r.type === 'living' || r.type === 'bedroom' || r.type === 'master') ? '#e5d5c5' : (r.type === 'bath' ? '#e2e8f0' : '#f1f5f9');
+        ctx.fillRect(rx, ry, rw, rh);
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 8;
+        ctx.strokeRect(rx, ry, rw, rh);
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 18px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(r.name, rx + rw / 2, ry + rh / 2 - 4);
+        ctx.fillStyle = '#dc2626';
+        ctx.font = 'bold 15px sans-serif';
+        ctx.fillText(r.dim, rx + rw / 2, ry + rh / 2 + 20);
+      });
+      return canvas.toDataURL('image/png');
+    }
+
+    function renderAll() {
+      const twoDUrl = render2DBlueprint();
+      document.getElementById('img2D').src = twoDUrl;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 1200;
+      canvas.height = 1200;
+      const ctx = canvas.getContext('2d');
+
+      const bgGrad = ctx.createRadialGradient(600, 550, 100, 600, 600, 850);
+      bgGrad.addColorStop(0, '#1e293b');
+      bgGrad.addColorStop(1, '#090d16');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, 1200, 1200);
+
+      const angleRad = cameraAngle === 'iso_45' ? -0.32 : cameraAngle === 'top_60' ? -0.15 : -0.45;
+      const tiltY = cameraAngle === 'iso_45' ? 0.68 : cameraAngle === 'top_60' ? 0.82 : 0.58;
+
+      function toIso(x, y, z = 0) {
+        const cx = x - 500, cy = y - 500;
+        const rx = cx * Math.cos(angleRad) - cy * Math.sin(angleRad) * 0.45;
+        const ry = (cx * Math.sin(angleRad) * 0.45 + cy * Math.cos(angleRad)) * tiltY;
+        return { x: 600 + rx, y: 600 + ry - z };
+      }
+
+      if (customImgData) {
+        const img = new Image();
+        img.onload = () => {
+          ctx.save();
+          ctx.translate(600, 580);
+          ctx.scale(1, tiltY);
+          ctx.rotate(angleRad);
+          for (let z = 0; z <= wallHeight; z += 3) {
+            ctx.globalAlpha = z === wallHeight ? 1.0 : 0.14;
+            ctx.drawImage(img, -420, -360 - z / tiltY, 840, 720);
+          }
+          ctx.restore();
+          current3DUrl = canvas.toDataURL('image/png');
+          document.getElementById('img3D').src = current3DUrl;
+        };
+        img.src = customImgData;
+        return;
+      }
+
+      const ox = 90, oy = 150, sw = 8.2, sh = 7.2;
+      const showFurn = document.getElementById('chkFurniture').checked;
+      const showLabels = document.getElementById('chkLabels').checked;
+      const showDims = document.getElementById('chkDims').checked;
+
+      const sorted = [...currentTemplate.rooms].sort((a, b) => (a.y + a.x * 0.3) - (b.y + b.x * 0.3));
+      sorted.forEach(r => {
+        const rx = ox + r.x * sw, ry = oy + r.y * sh, rw = r.w * sw, rh = r.h * sh;
+        const p1 = toIso(rx, ry, 0), p2 = toIso(rx + rw, ry, 0), p3 = toIso(rx + rw, ry + rh, 0), p4 = toIso(rx, ry + rh, 0);
+
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.lineTo(p3.x, p3.y); ctx.lineTo(p4.x, p4.y); ctx.closePath();
+        ctx.fillStyle = r.type === 'bath' ? '#cbd5e1' : (flooring === 'oak_wood' ? '#dcc5ab' : flooring === 'herringbone' ? '#cfb293' : '#e5e7eb');
+        ctx.fill();
+
+        const w1 = toIso(rx, ry, wallHeight), w2 = toIso(rx + rw, ry, wallHeight), w3 = toIso(rx + rw, ry + rh, wallHeight), w4 = toIso(rx, ry + rh, wallHeight);
+
+        ctx.fillStyle = '#e2e8f0';
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.lineTo(w2.x, w2.y); ctx.lineTo(w1.x, w1.y); ctx.closePath(); ctx.fill(); ctx.stroke();
+
+        ctx.fillStyle = '#cbd5e1';
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p4.x, p4.y); ctx.lineTo(w4.x, w4.y); ctx.lineTo(w1.x, w1.y); ctx.closePath(); ctx.fill(); ctx.stroke();
+
+        if (showFurn && (r.type === 'living' || r.type === 'master' || r.type === 'bedroom')) {
+          const bx = rx + rw * 0.25, by = ry + rh * 0.25, bw = rw * 0.5, bh = rh * 0.45, bz = 15;
+          const fb1 = toIso(bx, by + bh, 0), fb2 = toIso(bx + bw, by + bh, 0), ft1 = toIso(bx, by, bz), ft2 = toIso(bx + bw, by, bz), ft3 = toIso(bx + bw, by + bh, bz), ft4 = toIso(bx, by + bh, bz);
+          ctx.fillStyle = r.type === 'living' ? '#475569' : '#3b82f6';
+          ctx.beginPath(); ctx.moveTo(ft1.x, ft1.y); ctx.lineTo(ft2.x, ft2.y); ctx.lineTo(ft3.x, ft3.y); ctx.lineTo(ft4.x, ft4.y); ctx.closePath(); ctx.fill();
+        }
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(w1.x, w1.y); ctx.lineTo(w2.x, w2.y); ctx.lineTo(w3.x, w3.y); ctx.stroke();
+
+        if (showLabels) {
+          const c = toIso(rx + rw / 2, ry + rh / 2, wallHeight * 0.65);
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+          ctx.fillRect(c.x - 48, c.y - 18, 96, showDims ? 38 : 24);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 13px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(r.name, c.x, c.y - 2);
+          if (showDims) {
+            ctx.fillStyle = '#34d399';
+            ctx.font = 'bold 11px sans-serif';
+            ctx.fillText(r.dim, c.x, c.y + 14);
+          }
+        }
+      });
+
+      current3DUrl = canvas.toDataURL('image/png');
+      document.getElementById('img3D').src = current3DUrl;
+    }
+
+    function downloadRaw3D() {
+      const proj = document.getElementById('projectNameInput').value || '분양단지';
+      const a = document.createElement('a');
+      a.download = `${proj}_${currentTemplate.id}_3D평면_원본.png`;
+      a.href = current3DUrl;
+      a.click();
+    }
+
+    function downloadRatio(ratio, label) {
+      const proj = document.getElementById('projectNameInput').value || '분양단지';
+      const img = new Image();
+      img.onload = () => {
+        let w = 1080, h = 1080;
+        if (ratio === 'instagram-feed') { w = 1080; h = 1350; }
+        else if (ratio === 'instagram-story') { w = 1080; h = 1920; }
+        else if (ratio === 'naver-blog') { w = 1200; h = 800; }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#090d16';
+        ctx.fillRect(0, 0, w, h);
+
+        const headerH = ratio === 'naver-blog' ? 100 : 160;
+        ctx.fillStyle = '#10b981';
+        ctx.font = 'bold 24px sans-serif';
+        ctx.fillText(proj, 56, headerH * 0.45);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 38px sans-serif';
+        ctx.fillText(currentTemplate.name + ' 3D 입체 평면도', 56, headerH * 0.82);
+
+        const availW = w - 80, availH = h - headerH - 80;
+        const scale = Math.min(availW / img.width, availH / img.height);
+        const dw = img.width * scale, dh = img.height * scale;
+        ctx.drawImage(img, (w - dw) / 2, headerH + (availH - dh) / 2, dw, dh);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('※ 본 이미지는 평면 이해를 돕기 위한 AI/3D 연출 이미지입니다.', w / 2, h - 30);
+
+        const a = document.createElement('a');
+        a.download = `${proj}_${currentTemplate.id}_${label}.png`;
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+      };
+      img.src = current3DUrl;
+    }
+
+    initPresets();
+    renderAll();
+  </script>
+</body>
+</html>
