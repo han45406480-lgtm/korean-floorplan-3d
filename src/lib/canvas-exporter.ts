@@ -1,7 +1,8 @@
 import { ExportConfig } from '../types/floorplan';
 
 /**
- * Single 1:1 image rendered into multi-ratio SNS layouts using HTML5 Canvas
+ * Exports a single 3D floorplan image into SNS-ready ratios (4:5, 9:16, 3:2, 1:1)
+ * while guaranteeing that no part of the floorplan is cropped.
  */
 export async function exportToCanvas(
   sourceImageUrl: string,
@@ -15,17 +16,14 @@ export async function exportToCanvas(
       let height = 1080;
 
       if (config.ratio === 'instagram-feed') {
-        // 4:5 ratio
         width = 1080;
-        height = 1350;
+        height = 1350; // 4:5
       } else if (config.ratio === 'instagram-story') {
-        // 9:16 ratio
         width = 1080;
-        height = 1920;
+        height = 1920; // 9:16
       } else if (config.ratio === 'naver-blog') {
-        // 3:2 ratio
         width = 1200;
-        height = 800;
+        height = 800; // 3:2
       }
 
       const canvas = document.createElement('canvas');
@@ -33,63 +31,41 @@ export async function exportToCanvas(
       canvas.height = height;
       const ctx = canvas.getContext('2d');
       if (!ctx) {
-        reject(new Error('Canvas context not available'));
+        reject(new Error('Canvas context unavailable'));
         return;
       }
 
-      // 1. Dark charcoal premium background
-      ctx.fillStyle = '#0f172a';
+      // 1. Background Fill
+      ctx.fillStyle = '#090d16';
       ctx.fillRect(0, 0, width, height);
 
-      // Subtle gradient header
-      const grad = ctx.createLinearGradient(0, 0, 0, height * 0.25);
-      grad.addColorStop(0, '#1e293b');
-      grad.addColorStop(1, '#0f172a');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, width, height * 0.25);
-
-      // 2. Draw Header
+      // 2. Top Header Title
+      const headerHeight = config.ratio === 'naver-blog' ? 100 : 160;
       ctx.fillStyle = '#10b981';
-      ctx.font = 'bold 28px -apple-system, sans-serif';
-      ctx.fillText(config.projectName, 60, 80);
+      ctx.font = 'bold 24px -apple-system, sans-serif';
+      ctx.fillText(config.projectName, 56, headerHeight * 0.45);
 
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 44px -apple-system, sans-serif';
-      ctx.fillText(`${config.unitType} 프리미엄 3D 평면`, 60, 140);
+      ctx.font = 'bold 38px -apple-system, sans-serif';
+      ctx.fillText(`${config.unitType} 3D 입체 평면도`, 56, headerHeight * 0.82);
 
-      // 3. Draw Source 3D Image (preserve aspect, center in remaining space)
-      const maxImgW = width - 120;
-      const maxImgH = config.ratio === 'instagram-story' ? height * 0.55 : height * 0.65;
-      const scale = Math.min(maxImgW / img.width, maxImgH / img.height);
+      // 3. Fit Entire 3D Floorplan inside Safe Margin (Zero Cropping)
+      const footerHeight = 80;
+      const availW = width - 80;
+      const availH = height - headerHeight - footerHeight;
+      const scale = Math.min(availW / img.width, availH / img.height);
       const drawW = img.width * scale;
       const drawH = img.height * scale;
       const drawX = (width - drawW) / 2;
-      const drawY = 180 + (maxImgH - drawH) / 2;
-
-      // Draw subtle shadow frame
-      ctx.fillStyle = '#1e293b';
-      ctx.roundRect ? ctx.roundRect(drawX - 10, drawY - 10, drawW + 20, drawH + 20, 16) : ctx.rect(drawX - 10, drawY - 10, drawW + 20, drawH + 20);
-      ctx.fill();
+      const drawY = headerHeight + (availH - drawH) / 2;
 
       ctx.drawImage(img, drawX, drawY, drawW, drawH);
 
-      // 4. Draw Footer / Agent Badge
-      const footerY = height - 120;
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(40, footerY - 50, width - 80, 90);
-
+      // 4. Mandatory AI Generation Notice / Watermark
       ctx.fillStyle = '#94a3b8';
-      ctx.font = '22px -apple-system, sans-serif';
-      ctx.fillText(`담당: ${config.agentName}`, 70, footerY);
-
-      ctx.fillStyle = '#10b981';
-      ctx.font = 'bold 32px -apple-system, sans-serif';
-      ctx.fillText(`직통문의 ${config.agentPhone}`, 250, footerY + 3);
-
-      // 5. Watermark / Disclaimer
-      ctx.fillStyle = '#64748b';
       ctx.font = '16px -apple-system, sans-serif';
-      ctx.fillText(config.watermarkText, 60, height - 30);
+      ctx.textAlign = 'center';
+      ctx.fillText(config.watermarkText, width / 2, height - 30);
 
       resolve(canvas.toDataURL('image/png'));
     };

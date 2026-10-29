@@ -3,72 +3,124 @@ import { FloorplanTemplate } from '../types/floorplan';
 export const KOREAN_STANDARD_TEMPLATES: FloorplanTemplate[] = [
   {
     id: '84A',
-    name: '84A타입 국민평형',
+    name: '84㎡A (4Bay 판상형 표준)',
     pyung: 34,
     areaExclusive: 84.99,
     bayStructure: '4Bay 판상형',
-    features: ['4.5m 와이드 광폭 거실', '대면형 LDK 주방+아일랜드', '온전한 알파룸', '안방 파우더&드레스룸', '현관창고+주방팬트리'],
-    keyMarketingPoint: '가장 많은 사람이 선택하는 완성도 높은 4Bay 국민평형, 채광·통풍 극대화 맞통풍 설계',
     dimensions: {
       livingRoomWidth: '4.5m',
-      masterBedroom: '3.6m x 3.6m'
+      masterBedroom: '3.6m × 3.6m'
     },
-    sampleSvg: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="100%" height="100%" fill="%23f8fafc"/><rect x="40" y="40" width="520" height="320" fill="none" stroke="%23334155" stroke-width="4"/><line x1="170" y1="40" x2="170" y2="360" stroke="%2364748b" stroke-width="2"/><line x1="300" y1="40" x2="300" y2="360" stroke="%2364748b" stroke-width="2"/><line x1="430" y1="40" x2="430" y2="360" stroke="%2364748b" stroke-width="2"/><line x1="40" y1="180" x2="430" y2="180" stroke="%2364748b" stroke-width="2"/><text x="105" y="110" font-family="sans-serif" font-size="14" fill="%230f172a" text-anchor="middle">침실3 (2.7x3.3)</text><text x="235" y="110" font-family="sans-serif" font-size="14" fill="%230f172a" text-anchor="middle">침실2 (2.7x3.3)</text><text x="365" y="110" font-family="sans-serif" font-size="16" font-weight="bold" fill="%230f172a" text-anchor="middle">거실 (4.5m)</text><text x="495" y="110" font-family="sans-serif" font-size="14" font-weight="bold" fill="%230f172a" text-anchor="middle">침실1 (안방)</text><text x="235" y="270" font-family="sans-serif" font-size="14" fill="%230f172a" text-anchor="middle">알파룸 / 팬트리</text><text x="365" y="270" font-family="sans-serif" font-size="14" fill="%230f172a" text-anchor="middle">주방 / 식당 (대면형)</text><text x="495" y="270" font-family="sans-serif" font-size="12" fill="%2364748b" text-anchor="middle">드레스룸/부부욕실</text></svg>'
+    rooms: [
+      // Top row: Entrance, Bath1, Alpha/Pantry, Kitchen/Dining, Dressroom, MasterBath
+      { id: 'ent', name: '현관/창고', type: 'entrance', x: 6, y: 12, w: 12, h: 24, dimText: '1.6×2.2' },
+      { id: 'bath1', name: '공용욕실', type: 'bath', x: 6, y: 36, w: 12, h: 18, dimText: '2.1×1.8' },
+      { id: 'pantry', name: '팬트리/알파룸', type: 'Alpha', x: 18, y: 12, w: 16, h: 28, dimText: '2.4×2.3' },
+      { id: 'kitchen', name: '주방/식당', type: 'kitchen', x: 34, y: 8, w: 28, h: 34, dimText: '3.8×3.4' },
+      { id: 'bath2', name: '부부욕실', type: 'bath', x: 62, y: 14, w: 13, h: 22, dimText: '2.2×1.8' },
+      { id: 'dress', name: '드레스룸', type: 'dressroom', x: 75, y: 8, w: 19, h: 28, dimText: '2.9×2.4' },
+      // Bottom row (South-facing 4Bay): Bed3, Bed2, Living Room, Master Bedroom
+      { id: 'bed3', name: '침실3', type: 'bedroom', x: 6, y: 54, w: 18, h: 36, dimText: '3.0×3.3' },
+      { id: 'bed2', name: '침실2', type: 'bedroom', x: 24, y: 54, w: 18, h: 36, dimText: '2.7×3.3' },
+      { id: 'living', name: '거실', type: 'living', x: 42, y: 42, w: 28, h: 48, dimText: '4.5m 광폭' },
+      { id: 'master', name: '침실1(안방)', type: 'master', x: 70, y: 36, w: 24, h: 44, dimText: '3.6×3.6' },
+      { id: 'balcony', name: '발코니', type: 'balcony', x: 70, y: 80, w: 24, h: 10, dimText: '확장/실외기' }
+    ]
   },
   {
     id: '84B',
-    name: '84B타입 판상끝판왕',
+    name: '84㎡B (3면 개방 + 베타공간)',
     pyung: 34,
     areaExclusive: 84.96,
     bayStructure: '3면 개방형',
-    features: ['안방 독립 베타공간 (서재/홈짐)', '3면 발코니 확장 서비스면적 극대화', '완벽한 수납 삼각지대', '4.5m 광폭 거실'],
-    keyMarketingPoint: '3면 발코니 확장으로 체감 면적은 40평형대! 안방 안쪽 전용 베타공간 설계',
     dimensions: {
       livingRoomWidth: '4.5m',
-      masterBedroom: '4.8m x 3.6m'
+      masterBedroom: '4.8m × 3.6m'
     },
-    sampleSvg: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="100%" height="100%" fill="%23f8fafc"/><rect x="40" y="40" width="520" height="320" fill="none" stroke="%23334155" stroke-width="4"/><line x1="160" y1="40" x2="160" y2="360" stroke="%2364748b" stroke-width="2"/><line x1="300" y1="40" x2="300" y2="360" stroke="%2364748b" stroke-width="2"/><line x1="430" y1="40" x2="430" y2="360" stroke="%2364748b" stroke-width="2"/><text x="100" y="110" font-family="sans-serif" font-size="14" fill="%230f172a" text-anchor="middle">침실3</text><text x="230" y="110" font-family="sans-serif" font-size="14" fill="%230f172a" text-anchor="middle">침실2</text><text x="365" y="110" font-family="sans-serif" font-size="16" font-weight="bold" fill="%230f172a" text-anchor="middle">거실 (4.5m)</text><text x="495" y="110" font-family="sans-serif" font-size="14" font-weight="bold" fill="%230f172a" text-anchor="middle">침실1 (안방)</text><text x="495" y="270" font-family="sans-serif" font-size="14" font-weight="bold" fill="%2310b981" text-anchor="middle">★ 안방 베타공간</text></svg>'
+    rooms: [
+      { id: 'ent', name: '현관/창고', type: 'entrance', x: 6, y: 14, w: 14, h: 22, dimText: '1.8×2.2' },
+      { id: 'bath1', name: '공용욕실', type: 'bath', x: 6, y: 36, w: 14, h: 18, dimText: '2.1×1.8' },
+      { id: 'pantry', name: '대형팬트리', type: 'pantry', x: 20, y: 14, w: 12, h: 26, dimText: '1.8×2.4' },
+      { id: 'kitchen', name: '주방/다이닝', type: 'kitchen', x: 32, y: 8, w: 26, h: 34, dimText: '4.5×3.8' },
+      { id: 'bath2', name: '부부욕실', type: 'bath', x: 58, y: 14, w: 12, h: 22, dimText: '2.1×1.8' },
+      { id: 'dress', name: '드레스룸', type: 'dressroom', x: 70, y: 8, w: 12, h: 28, dimText: '2.0×2.6' },
+      { id: 'beta', name: '안방 베타룸', type: 'Alpha', x: 82, y: 14, w: 13, h: 26, dimText: '2.9×2.2' },
+      { id: 'bed3', name: '침실3', type: 'bedroom', x: 6, y: 54, w: 18, h: 36, dimText: '3.0×3.3' },
+      { id: 'bed2', name: '침실2', type: 'bedroom', x: 24, y: 54, w: 17, h: 36, dimText: '2.7×3.3' },
+      { id: 'living', name: '거실', type: 'living', x: 41, y: 42, w: 27, h: 48, dimText: '4.5m 광폭' },
+      { id: 'master', name: '침실1(안방)', type: 'master', x: 68, y: 40, w: 27, h: 40, dimText: '4.8×3.6' },
+      { id: 'balcony', name: '발코니', type: 'balcony', x: 68, y: 80, w: 27, h: 10, dimText: '발코니' }
+    ]
   },
   {
     id: '59A',
-    name: '59A타입 소형 명품',
+    name: '59㎡A (소형 4Bay 판상형)',
     pyung: 24,
     areaExclusive: 59.99,
     bayStructure: '4Bay 판상형',
-    features: ['소형 희소 4Bay 구조', '안방 파우더룸&드레스룸 완비', '주방 팬트리 수납', '다용도실 세탁동선'],
-    keyMarketingPoint: '최근 공급 가뭄인 24평형의 완벽한 4Bay 판상형, 신혼부부·실속 실수요 1순위',
     dimensions: {
       livingRoomWidth: '3.6m',
-      masterBedroom: '3.3m x 3.0m'
+      masterBedroom: '3.3m × 3.0m'
     },
-    sampleSvg: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="100%" height="100%" fill="%23f8fafc"/><rect x="40" y="40" width="520" height="320" fill="none" stroke="%23334155" stroke-width="4"/><text x="300" y="200" font-family="sans-serif" font-size="18" font-weight="bold" fill="%230f172a" text-anchor="middle">59A 4Bay 판상형 표준 도면</text></svg>'
+    rooms: [
+      { id: 'dress', name: '드레스룸', type: 'dressroom', x: 8, y: 12, w: 14, h: 26, dimText: '1.8×2.4' },
+      { id: 'bath2', name: '부부욕실', type: 'bath', x: 22, y: 16, w: 12, h: 22, dimText: '1.8×1.8' },
+      { id: 'kitchen', name: '주방/식당', type: 'kitchen', x: 34, y: 10, w: 28, h: 32, dimText: '2.9×3.2' },
+      { id: 'pantry', name: '팬트리', type: 'pantry', x: 62, y: 18, w: 12, h: 22, dimText: '1.5×1.8' },
+      { id: 'ent', name: '현관', type: 'entrance', x: 74, y: 14, w: 18, h: 20, dimText: '1.5×1.8' },
+      { id: 'bath1', name: '공용욕실', type: 'bath', x: 74, y: 34, w: 18, h: 18, dimText: '2.1×1.6' },
+      { id: 'master', name: '침실1(안방)', type: 'master', x: 8, y: 38, w: 26, h: 48, dimText: '3.3×3.0' },
+      { id: 'living', name: '거실', type: 'living', x: 34, y: 42, w: 24, h: 44, dimText: '3.6m' },
+      { id: 'bed2', name: '침실2', type: 'bedroom', x: 58, y: 52, w: 17, h: 34, dimText: '2.7×3.1' },
+      { id: 'bed3', name: '침실3', type: 'bedroom', x: 75, y: 52, w: 17, h: 34, dimText: '2.7×3.1' }
+    ]
   },
   {
     id: '74A',
-    name: '74A타입 체감면적 극대화',
+    name: '74㎡A (중소형 4Bay + 알파룸)',
     pyung: 30,
     areaExclusive: 74.96,
     bayStructure: '4Bay 판상형',
-    features: ['4.2m 와이드 거실', '알파룸 제공', '현관창고+주방팬트리', '가성비·가심비 최적화'],
-    keyMarketingPoint: '사는 느낌은 34평형 그대로, 분양가와 관리비는 30평형대로 1억 원 가까이 아끼는 스마트 초이스',
     dimensions: {
       livingRoomWidth: '4.2m',
-      masterBedroom: '3.5m x 3.3m'
+      masterBedroom: '3.5m × 3.3m'
     },
-    sampleSvg: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="100%" height="100%" fill="%23f8fafc"/><rect x="40" y="40" width="520" height="320" fill="none" stroke="%23334155" stroke-width="4"/><text x="300" y="200" font-family="sans-serif" font-size="18" font-weight="bold" fill="%230f172a" text-anchor="middle">74A 4Bay 판상형 도면</text></svg>'
+    rooms: [
+      { id: 'ent', name: '현관/창고', type: 'entrance', x: 6, y: 14, w: 13, h: 22, dimText: '1.6×2.0' },
+      { id: 'bath1', name: '공용욕실', type: 'bath', x: 6, y: 36, w: 13, h: 18, dimText: '2.1×1.7' },
+      { id: 'alpha', name: '알파룸', type: 'Alpha', x: 19, y: 12, w: 16, h: 28, dimText: '1.8×2.3' },
+      { id: 'kitchen', name: '주방/식당', type: 'kitchen', x: 35, y: 10, w: 27, h: 32, dimText: '2.9×3.5' },
+      { id: 'bath2', name: '부부욕실', type: 'bath', x: 62, y: 14, w: 13, h: 22, dimText: '2.1×1.8' },
+      { id: 'dress', name: '드레스룸', type: 'dressroom', x: 75, y: 10, w: 18, h: 26, dimText: '2.4×2.2' },
+      { id: 'bed3', name: '침실3', type: 'bedroom', x: 6, y: 54, w: 18, h: 36, dimText: '2.7×3.1' },
+      { id: 'bed2', name: '침실2', type: 'bedroom', x: 24, y: 54, w: 18, h: 36, dimText: '2.7×3.1' },
+      { id: 'living', name: '거실', type: 'living', x: 42, y: 42, w: 26, h: 48, dimText: '4.2m' },
+      { id: 'master', name: '침실1(안방)', type: 'master', x: 68, y: 36, w: 25, h: 44, dimText: '3.5×3.3' },
+      { id: 'balcony', name: '발코니', type: 'balcony', x: 68, y: 80, w: 25, h: 10, dimText: '발코니' }
+    ]
   },
   {
     id: '99A',
-    name: '99A타입 대형 5Bay 프리미엄',
+    name: '99㎡A (대형 5Bay 판상형)',
     pyung: 39,
     areaExclusive: 99.39,
     bayStructure: '5Bay 판상형',
-    features: ['압도적인 5Bay 판상형 거대 4룸', '4.8m 광폭 거실', '독립형 다이닝룸', '초대형 부티크 드레스룸'],
-    keyMarketingPoint: '살아가면서 집 좁아서 이사 갈 걱정 평생 없는 대형 평면 희소성 1위',
     dimensions: {
       livingRoomWidth: '4.8m',
-      masterBedroom: '4.2m x 3.5m'
+      masterBedroom: '4.2m × 3.5m'
     },
-    sampleSvg: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="100%" height="100%" fill="%23f8fafc"/><rect x="40" y="40" width="520" height="320" fill="none" stroke="%23334155" stroke-width="4"/><text x="300" y="200" font-family="sans-serif" font-size="18" font-weight="bold" fill="%230f172a" text-anchor="middle">99A 5Bay 대형 평면 도면</text></svg>'
+    rooms: [
+      { id: 'dress', name: '부티크 드레스룸', type: 'dressroom', x: 5, y: 10, w: 20, h: 26, dimText: '3.2×2.4' },
+      { id: 'bath2', name: '부부욕실', type: 'bath', x: 25, y: 14, w: 12, h: 22, dimText: '2.2×2.0' },
+      { id: 'kitchen', name: '다이닝/주방', type: 'kitchen', x: 37, y: 8, w: 30, h: 32, dimText: '4.4×3.4' },
+      { id: 'pantry', name: '대형팬트리', type: 'pantry', x: 67, y: 14, w: 12, h: 24, dimText: '1.8×2.2' },
+      { id: 'ent', name: '현관/창고', type: 'entrance', x: 79, y: 12, w: 16, h: 20, dimText: '1.8×2.2' },
+      { id: 'bath1', name: '공용욕실', type: 'bath', x: 79, y: 32, w: 16, h: 18, dimText: '2.2×1.8' },
+      { id: 'master', name: '침실1(안방)', type: 'master', x: 5, y: 36, w: 22, h: 44, dimText: '4.2×3.5' },
+      { id: 'bed2', name: '침실2', type: 'bedroom', x: 27, y: 50, w: 15, h: 40, dimText: '2.7×3.7' },
+      { id: 'living', name: '거실', type: 'living', x: 42, y: 40, w: 25, h: 50, dimText: '4.8m 광폭' },
+      { id: 'bed3', name: '침실3', type: 'bedroom', x: 67, y: 50, w: 14, h: 40, dimText: '2.7×3.7' },
+      { id: 'bed4', name: '침실4', type: 'bedroom', x: 81, y: 50, w: 14, h: 40, dimText: '3.0×3.7' }
+    ]
   }
 ];
